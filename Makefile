@@ -1,4 +1,4 @@
-PYTHON=python
+PYTHON=python3
 .PHONY: all clean test
 
 all: homsearch_interface.so

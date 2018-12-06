@@ -1,0 +1,84 @@
+<!DOCTYPE>
+<html>
+<head>
+    <title>Non-Homomorphism</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <link href="style.css" rel="stylesheet"/>
+    <script src="jquery-3.2.1.min.js"></script>
+    <script src="cytoscape.min.js"></script>
+    <script src="code.js"></script>
+    <style>
+        table {
+            border-collapse: collapse;
+            font-family: Serif;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        td {
+            padding: 5px;
+        }
+
+        .flex-container {
+            display: flex;
+            flex-flow: row wrap;
+        }
+
+        .flex-container > div {
+            width: 330px;
+            margin: 10px;
+            text-align: center;
+            line-height: 75px;
+            font-size: 30px;
+        }
+    </style>
+</head>
+<body>
+<h1>Homomorphism</h1>
+Here, we display the number of all homomorphisms between the graphs with four vertices.
+This number is an estimation. So, it can
+<div class="flex-container" id="graphs"></div>
+<script>
+    var tableCounts = 4;
+    for(var i=1;i<tableCounts+1;i++) $("#graphs")
+        .append("<div><table id='graphs" + i + "'><tr><th>G</th><th>H</th><th>HO</th><th>NH</th></tr></table></div>");
+    jQuery.getJSON("force/graphs/all.json", function (all) {
+        jQuery.get('data', function (data) {
+            var gs = {};
+            var lines = data.split("\n");
+            var part = Math.floor(lines.length / tableCounts);
+            for (var i = 0; i < tableCounts; i++) {
+                for (var j = 0; j < part; j++) {
+                    var index = Math.floor(i * part + j);
+                    if (index >= lines.length) break;
+                    var line = lines[index];
+                    console.log(line);
+                    var arr = line.split(",");
+                    var graphs = arr[0].split("-");
+                    var Gstr = graphs[0];
+                    var Hstr = graphs[1];
+                    if (Gstr == "") return;
+                    if (gs[Gstr] == undefined) gs[Gstr] = 0;
+                    if (gs[Hstr] == undefined) gs[Hstr] = 0;
+                    gs[Gstr]++;
+                    gs[Hstr]++;
+                    $("#graphs" + (i + 1)).append("<tr><td><div  style='width:100px;height: 100px;' id='cy" + Gstr + gs[Gstr] + "'></div></td>" +
+                        "<td><div  style='width:130px;height: 130px;' id='cy" + Hstr + gs[Hstr] + "'></div></td>" +
+                        "<td>" + arr[1] + "</td><td>" + arr[2] + "</td></tr>");
+                }
+            }
+
+            Object.keys(all).forEach(function (a) {
+                for (var i = 1; i <= gs[a]; i++) {
+                    buildCy(all[a], "cy" + a + i);
+                }
+            });
+        });
+
+    });
+
+</script>
+</body>
+</html>
